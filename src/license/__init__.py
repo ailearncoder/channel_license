@@ -5,6 +5,7 @@ from . import database
 from . import models
 from . import logic
 from . import exceptions
+from . import api
 
 
 def main() -> None:
@@ -17,5 +18,6 @@ __all__ = [
     "models",
     "logic",
     "exceptions",
+    "api",
     "main",
 ]
