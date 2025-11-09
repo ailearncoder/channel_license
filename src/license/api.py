@@ -208,3 +208,34 @@ def get_all_channels(db: Session) -> Dict[str, Any]:
 def get_all_channels_with_session() -> Dict[str, Any]:
     with database.get_db_session() as db:
         return get_all_channels(db)
+
+
+def delete_device(db: Session, device_id: Optional[int] = None, device_id_str: Optional[str] = None) -> Dict[str, Any]:
+    """删除指定设备。接受 device_id 或 device_id_str 之一。
+
+    当设备存在且其下没有许可证时可删除；否则返回错误信息。
+    成功时 commit 并返回 {"success": True}。
+    """
+    q = db.query(models.Device)
+    if device_id is not None:
+        dev = q.filter(models.Device.id == device_id).one_or_none()
+    elif device_id_str is not None:
+        dev = q.filter(models.Device.device_id_str == device_id_str).one_or_none()
+    else:
+        return {"success": False, "message": "device_id or device_id_str required"}
+
+    if dev is None:
+        return {"success": False, "message": "device not found"}
+
+    license_count = db.query(models.License).filter(models.License.device_id == dev.id).count()
+    if license_count > 0:
+        return {"success": False, "message": "device has licenses and cannot be deleted"}
+
+    db.delete(dev)
+    db.commit()
+    return {"success": True}
+
+
+def delete_device_with_session(device_id: Optional[int] = None, device_id_str: Optional[str] = None) -> Dict[str, Any]:
+    with database.get_db_session() as db:
+        return delete_device(db, device_id=device_id, device_id_str=device_id_str)

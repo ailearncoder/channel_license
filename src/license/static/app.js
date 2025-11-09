@@ -78,6 +78,21 @@ document.getElementById('btnDeleteChannel').addEventListener('click', async (e) 
   finally{ setBtnLoading(btn, false) }
 })
 
+document.getElementById('btnDeleteDevice')?.addEventListener('click', async (e) => {
+  const btn = e.currentTarget
+  setBtnLoading(btn, true)
+  try{
+    const device_id = document.getElementById('dev_id_del').value || null
+    const device_id_str = document.getElementById('dev_id_str_del').value || null
+    const params = new URLSearchParams()
+    if (device_id) params.set('device_id', device_id)
+    if (device_id_str) params.set('device_id_str', device_id_str)
+    const data = await apiFetch(`${apiBase}/devices?${params.toString()}`, { method: 'DELETE' })
+    document.getElementById('deleteDeviceResult').textContent = pretty(data)
+  }catch(err){ document.getElementById('deleteDeviceResult').textContent = pretty(err) }
+  finally{ setBtnLoading(btn, false) }
+})
+
 document.getElementById('btnListChannels')?.addEventListener('click', async (e) => {
   const btn = e.currentTarget
   setBtnLoading(btn, true)
