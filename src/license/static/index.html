@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>License Service UI</title>
+    <style>
+      :root{--bg:#f6f8fb;--card:#fff;--muted:#6b7280;--accent:#2563eb}
+      html,body{height:100%}
+      body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; background:var(--bg); color:#0f172a }
+      .container{max-width:1100px;margin:28px auto;padding:20px}
+      header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+      h1{font-size:20px;margin:0}
+      .grid{display:grid;grid-template-columns:1fr 420px;gap:16px}
+      .card{background:var(--card);border-radius:10px;padding:14px;box-shadow:0 1px 2px rgba(16,24,40,0.04)}
+      .small{font-size:13px;color:var(--muted)}
+      label{display:block;margin-top:10px;font-weight:600}
+      input[type=text], input[type=number], textarea{width:100%;padding:8px;border:1px solid #e6e8eb;border-radius:6px}
+      button{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+      button.secondary{background:#eef2ff;color:var(--accent)}
+      .row{display:flex;gap:8px;align-items:center}
+      pre{background:#0b1220;color:#dbeafe;padding:10px;border-radius:6px;white-space:pre-wrap;overflow:auto;max-height:320px}
+      .muted{color:var(--muted)}
+      .controls{display:flex;gap:8px;flex-wrap:wrap}
+      .meta{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:13px}
+      .copy-btn{background:#e6eefc;border-radius:6px;padding:6px 8px;border:1px solid #dbeafe;color:var(--accent);cursor:pointer}
+      .spinner{width:16px;height:16px;border:2px solid #cbd5e1;border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;display:inline-block}
+      @keyframes spin{to{transform:rotate(360deg)}}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>License 管理面板</h1>
+        <div class="meta">快速演示 · 静态 UI · 后端 API 接口</div>
+      </header>
+
+      <div class="grid">
+        <div>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <h2 style="margin:0;font-size:16px">设备与许可证</h2>
+                <div class="small muted">显示所有设备及其最新许可证（如有）</div>
+              </div>
+              <div class="controls">
+                <label class="small muted" style="display:flex;align-items:center"><input id="includeExpired" type="checkbox" style="margin-right:6px"/> 包含已过期</label>
+                <button id="btnLoadDevices">加载</button>
+                <button id="btnInitDb" class="secondary">初始化 DB</button>
+              </div>
+            </div>
+
+            <div style="margin-top:12px;display:flex;gap:12px">
+              <div style="flex:1">
+                <pre id="devicesResult">尚未加载</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:12px">
+            <h2 style="margin:0;font-size:16px">渠道管理（添加 / 删除）</h2>
+            <div class="small muted">添加渠道后可在设备发放许可证时生效</div>
+            <label>名称<input id="ch_name" type="text" placeholder="例如: demo-channel" /></label>
+            <div style="display:flex;gap:8px">
+              <label style="flex:1">最大设备数<input id="ch_max" value="1000" type="number"/></label>
+              <label style="width:160px">许可证天数<input id="ch_days" value="30" type="number"/></label>
+            </div>
+            <label>描述<textarea id="ch_desc" rows="2"></textarea></label>
+            <div class="row">
+              <button id="btnAddChannel">添加渠道</button>
+              <button id="btnListChannels" class="secondary">加载示例渠道</button>
+              <button id="btnCopyDevices" class="copy-btn">复制结果</button>
+            </div>
+            <pre id="addChannelResult" style="margin-top:8px">未提交</pre>
+          </div>
+        </div>
+
+        <aside>
+          <div class="card">
+            <h3 style="margin:0">快速操作</h3>
+            <div class="small muted" style="margin-bottom:8px">删除渠道（示例）</div>
+            <label>channel_id <input id="ch_id_del" type="number" /></label>
+            <label>或 channel_name <input id="ch_name_del" type="text" /></label>
+            <div class="row" style="margin-top:8px">
+              <button id="btnDeleteChannel">删除渠道</button>
+              <button id="btnClear">清空</button>
+            </div>
+            <pre id="deleteChannelResult" style="margin-top:10px">未操作</pre>
+          </div>
+
+          <div class="card" style="margin-top:12px">
+            <h3 style="margin:0">提示</h3>
+            <div class="small muted" style="margin-top:8px">要在生产中使用，请对 API 添加认证与输入校验，并替换占位 license 生成策略。</div>
+          </div>
+        </aside>
+      </div>
+
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
