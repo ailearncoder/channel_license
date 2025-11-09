@@ -3,7 +3,7 @@
 文档未指定的低层实现使用占位函数或简单实现以便演示。
 """
 from datetime import datetime, timedelta, timezone
-from typing import Optional, cast
+from typing import Optional, cast, Callable
 from sqlalchemy.orm import Session
 
 from . import models
@@ -77,7 +77,13 @@ def create_new_license(
     return lic
 
 
-def process_license_request(db: Session, device_id_str: str, channel_name: str, request_ip: str) -> models.License:
+def process_license_request(
+    db: Session,
+    device_id_str: str,
+    channel_name: str,
+    request_ip: str,
+    generate_key_fn: Callable[[str, datetime], str] = generate_license_key,
+) -> models.License:
     """处理许可证请求的主函数（遵循 plan.md 中的伪代码流程）。
 
     对文档未指明的低层细节采用占位实现。
@@ -111,7 +117,8 @@ def process_license_request(db: Session, device_id_str: str, channel_name: str, 
 
     # 4. 创建新许可证
     expires_at = calculate_expiry_date(cast(int, channel.license_duration_days))
-    license_key_str = generate_license_key(device_id=device_id_str, expires_at=expires_at)
+    # 允许外部传入生成 key 的函数以便替换默认实现（便于测试或自定义签名）
+    license_key_str = generate_key_fn(device_id_str, expires_at)
 
     new_license = create_new_license(
         db=db,
