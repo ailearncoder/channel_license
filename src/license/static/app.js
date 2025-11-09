@@ -78,9 +78,15 @@ document.getElementById('btnDeleteChannel').addEventListener('click', async (e) 
   finally{ setBtnLoading(btn, false) }
 })
 
-document.getElementById('btnListChannels')?.addEventListener('click', ()=>{
-  // convenience: re-use devices list as an example
-  document.getElementById('btnLoadDevices').click()
+document.getElementById('btnListChannels')?.addEventListener('click', async (e) => {
+  const btn = e.currentTarget
+  setBtnLoading(btn, true)
+  try{
+    const data = await apiFetch(`${apiBase}/channels`)
+    document.getElementById('channelsResult').textContent = pretty(data)
+  }catch(err){
+    document.getElementById('channelsResult').textContent = pretty(err)
+  }finally{ setBtnLoading(btn, false) }
 })
 
 document.getElementById('btnCopyDevices')?.addEventListener('click', async ()=>{

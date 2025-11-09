@@ -66,6 +66,13 @@ def api_add_channel(payload: ChannelCreate, db=Depends(get_db)):
     return JSONResponse(content=res)
 
 
+@app.get("/api/channels")
+def api_get_channels(db=Depends(get_db)):
+    """返回所有渠道的列表（JSON）。"""
+    res = license_api.get_all_channels(db)
+    return JSONResponse(content=res)
+
+
 @app.delete("/api/channels")
 def api_delete_channel(channel_id: Optional[int] = None, channel_name: Optional[str] = None, db=Depends(get_db)):
     res = license_api.delete_channel(db, channel_id=channel_id, channel_name=channel_name)

@@ -197,3 +197,14 @@ def add_channel_with_session(
 ) -> Dict[str, Any]:
     with database.get_db_session() as db:
         return add_channel(db, name, max_devices, license_duration_days, description)
+
+
+def get_all_channels(db: Session) -> Dict[str, Any]:
+    """返回所有 channel 的列表（字典格式）。"""
+    channels = db.query(models.Channel).order_by(models.Channel.id.asc()).all()
+    return {"channels": [_channel_to_dict(ch) for ch in channels]}
+
+
+def get_all_channels_with_session() -> Dict[str, Any]:
+    with database.get_db_session() as db:
+        return get_all_channels(db)
