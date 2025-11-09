@@ -74,6 +74,20 @@
             <pre id="addChannelResult" style="margin-top:8px">未提交</pre>
             <h4 style="margin-top:10px;margin-bottom:6px">渠道列表</h4>
             <pre id="channelsResult">尚未加载渠道</pre>
+            
+            <h4 style="margin-top:12px;margin-bottom:6px">编辑渠道</h4>
+            <div class="small muted">填写要编辑的 `channel_id`（必填）和需要更新的字段，提交将调用 PUT /api/channels/{id}</div>
+            <label>channel_id <input id="edit_ch_id" type="number" /></label>
+            <label>名称<input id="edit_ch_name" type="text" placeholder="例如: new-name" /></label>
+            <div style="display:flex;gap:8px">
+              <label style="flex:1">最大设备数<input id="edit_ch_max" type="number"/></label>
+              <label style="width:160px">许可证天数<input id="edit_ch_days" type="number"/></label>
+            </div>
+            <label>描述<textarea id="edit_ch_desc" rows="2"></textarea></label>
+            <div class="row">
+              <button id="btnEditChannel">提交编辑</button>
+            </div>
+            <pre id="editChannelResult" style="margin-top:8px">未操作</pre>
           </div>
         </div>
 
@@ -93,8 +107,13 @@
             <div class="small muted" style="margin-bottom:8px">删除设备（示例）</div>
             <label>device_id <input id="dev_id_del" type="number" /></label>
             <label>或 device_id_str <input id="dev_id_str_del" type="text" /></label>
-            <div class="row" style="margin-top:8px">
-              <button id="btnDeleteDevice">删除设备</button>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <input id="forceDelete" type="checkbox" /> <label class="small muted">强制删除（同时删除许可证）</label>
+              </div>
+              <div class="row" style="margin-left:auto">
+                <button id="btnDeleteDevice">删除设备</button>
+              </div>
             </div>
             <pre id="deleteDeviceResult" style="margin-top:10px">未操作</pre>
           </div>

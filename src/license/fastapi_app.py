@@ -83,9 +83,9 @@ def api_delete_channel(channel_id: Optional[int] = None, channel_name: Optional[
 
 @app.delete("/api/devices")
 def api_delete_device(
-    device_id: Optional[int] = None, device_id_str: Optional[str] = None, db=Depends(get_db)
+    device_id: Optional[int] = None, device_id_str: Optional[str] = None, force: bool = Query(False), db=Depends(get_db)
 ):
-    res = license_api.delete_device(db, device_id=device_id, device_id_str=device_id_str)
+    res = license_api.delete_device(db, device_id=device_id, device_id_str=device_id_str, force=force)
     if not res.get("success", False):
         raise HTTPException(status_code=400, detail=res.get("message", "delete failed"))
     return JSONResponse(content=res)

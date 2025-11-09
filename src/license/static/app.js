@@ -84,12 +84,64 @@ document.getElementById('btnDeleteDevice')?.addEventListener('click', async (e) 
   try{
     const device_id = document.getElementById('dev_id_del').value || null
     const device_id_str = document.getElementById('dev_id_str_del').value || null
+    const force = document.getElementById('forceDelete').checked
+
+    if(!device_id && !device_id_str){
+      document.getElementById('deleteDeviceResult').textContent = '请提供 device_id 或 device_id_str';
+      return
+    }
+
+    const confirmMsg = force
+      ? '将强制删除设备及其所有许可证。确认继续？'
+      : '确认删除该设备？（若设备有许可证，此操作会失败，或勾选 强制删除）'
+    if(!confirm(confirmMsg)){
+      document.getElementById('deleteDeviceResult').textContent = '已取消'
+      return
+    }
+
     const params = new URLSearchParams()
     if (device_id) params.set('device_id', device_id)
     if (device_id_str) params.set('device_id_str', device_id_str)
+    if (force) params.set('force', 'true')
+
     const data = await apiFetch(`${apiBase}/devices?${params.toString()}`, { method: 'DELETE' })
     document.getElementById('deleteDeviceResult').textContent = pretty(data)
   }catch(err){ document.getElementById('deleteDeviceResult').textContent = pretty(err) }
+  finally{ setBtnLoading(btn, false) }
+})
+
+
+document.getElementById('btnEditChannel')?.addEventListener('click', async (e) => {
+  const btn = e.currentTarget
+  setBtnLoading(btn, true)
+  try{
+    const channelId = document.getElementById('edit_ch_id').value || null
+    if(!channelId){ document.getElementById('editChannelResult').textContent = 'channel_id 为必填项'; return }
+
+    const name = document.getElementById('edit_ch_name').value.trim() || undefined
+    const max_devices_raw = document.getElementById('edit_ch_max').value
+    const max_devices = max_devices_raw ? Number(max_devices_raw) : undefined
+    const license_days_raw = document.getElementById('edit_ch_days').value
+    const license_days = license_days_raw ? Number(license_days_raw) : undefined
+    const description = document.getElementById('edit_ch_desc').value || undefined
+
+    // 验证至少有一个要更新的字段
+    if(name === undefined && max_devices === undefined && license_days === undefined && description === undefined){
+      document.getElementById('editChannelResult').textContent = '请至少填写一个要更新的字段';
+      return
+    }
+
+    const payload = {}
+    if(name !== undefined && name !== '') payload.name = name
+    if(max_devices !== undefined && !Number.isNaN(max_devices)) payload.max_devices = max_devices
+    if(license_days !== undefined && !Number.isNaN(license_days)) payload.license_duration_days = license_days
+    if(description !== undefined) payload.description = description
+
+    const data = await apiFetch(`${apiBase}/channels/${channelId}`, {
+      method: 'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    })
+    document.getElementById('editChannelResult').textContent = pretty(data)
+  }catch(err){ document.getElementById('editChannelResult').textContent = pretty(err) }
   finally{ setBtnLoading(btn, false) }
 })
 
