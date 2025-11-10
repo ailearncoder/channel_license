@@ -23,6 +23,7 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 
 [dependency-groups]
 dev = [
+    "black>=25.11.0",
     "fastapi>=0.121.1",
     "pytest>=9.0.0",
     "uvicorn>=0.38.0",
