@@ -1,4 +1,4 @@
-const apiBase = '/api'
+const apiBase = 'api'
 
 function pretty(obj){
   try { return JSON.stringify(obj, null, 2) }
