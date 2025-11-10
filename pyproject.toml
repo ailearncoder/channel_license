@@ -1,5 +1,5 @@
 [project]
-name = "license"
+name = "channel-license"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.scripts]
-license = "license:main"
+channel-license = "channel_license:main"
 
 [build-system]
 requires = ["hatchling"]

@@ -8,15 +8,15 @@ import pytest
 
 def setup_db(tmp_path: Path):
     """将 license.database 的 DATABASE_FILE_PATH 指向临时文件并初始化数据库。"""
-    import license
+    import channel_license
 
     db_file = tmp_path / "test_license.db"
     # 修改配置并重新加载 database 模块以创建基于该文件的 engine
-    license.config.DATABASE_FILE_PATH = str(db_file)
-    importlib.reload(license.database)
+    channel_license.config.DATABASE_FILE_PATH = str(db_file)
+    importlib.reload(channel_license.database)
     # 初始化表
-    license.database.init_db()
-    return license
+    channel_license.database.init_db()
+    return channel_license
 
 
 def test_new_device_creates_device_and_license(tmp_path):

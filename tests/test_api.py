@@ -5,13 +5,13 @@ from datetime import datetime
 
 def setup_db(tmp_path: Path):
     """将 license.database 的 DATABASE_FILE_PATH 指向临时文件并初始化数据库（与 tests/test_logic.py 保持一致）。"""
-    import license
+    import channel_license
 
     db_file = tmp_path / "test_license.db"
-    license.config.DATABASE_FILE_PATH = str(db_file)
-    importlib.reload(license.database)
-    license.database.init_db()
-    return license
+    channel_license.config.DATABASE_FILE_PATH = str(db_file)
+    importlib.reload(channel_license.database)
+    channel_license.database.init_db()
+    return channel_license
 
 
 def test_api_add_edit_delete_channel(tmp_path):
