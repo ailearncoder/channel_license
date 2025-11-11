@@ -42,7 +42,7 @@ class LicenseStatusUpdate(BaseModel):
 
 
 def index():
-    return FileResponse("src/license/static/index.html")
+    return FileResponse(f"{os.path.dirname(__file__)}/static/index.html")
 
 
 def api_list_devices(include_expired: bool = Query(False), db=Depends(get_db)):

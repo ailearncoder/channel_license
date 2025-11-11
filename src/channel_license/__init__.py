@@ -6,6 +6,7 @@ from . import models
 from . import logic
 from . import exceptions
 from . import api
+from . import fastapi_app
 
 
 def main() -> None:
@@ -20,4 +21,5 @@ __all__ = [
     "exceptions",
     "api",
     "main",
+    "fastapi_app",
 ]
