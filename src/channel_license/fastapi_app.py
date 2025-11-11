@@ -1,18 +1,40 @@
-from typing import Optional
+from typing import Optional, List
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
 
 from . import api as license_api
 from . import database
 
 import os
+import secrets
 
 
 # NOTE: 不要在模块导入时创建 FastAPI 实例。
 # 提供 api_init_routes(app: FastAPI) 函数以在外部创建的 app 上注册路由。
+
+# Basic Auth 配置
+security = HTTPBasic()
+
+# 默认用户名和密码（在实际应用中应该从配置文件或环境变量读取）
+USERNAME = "admin"
+PASSWORD = "password"
+
+
+def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
+    """验证 Basic Auth 凭据"""
+    correct_username = secrets.compare_digest(credentials.username, USERNAME)
+    correct_password = secrets.compare_digest(credentials.password, PASSWORD)
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
 
 
 def get_db():
@@ -54,8 +76,8 @@ def api_add_channel(payload: ChannelCreate, db=Depends(get_db)):
     res = license_api.add_channel(
         db,
         name=payload.name,
-        max_devices=payload.max_devices,
-        license_duration_days=payload.license_duration_days,
+        max_devices=payload.max_devices if payload.max_devices is not None else 1000,
+        license_duration_days=payload.license_duration_days if payload.license_duration_days is not None else 30,
         description=payload.description,
     )
     if not res.get("success", False):
@@ -101,8 +123,8 @@ def api_edit_channel(channel_id: int, payload: ChannelEdit, db=Depends(get_db)):
         db,
         channel_id=channel_id,
         name=payload.name,
-        max_devices=payload.max_devices,
-        license_duration_days=payload.license_duration_days,
+        max_devices=payload.max_devices if payload.max_devices is not None else None,
+        license_duration_days=payload.license_duration_days if payload.license_duration_days is not None else None,
         description=payload.description,
     )
     if not res.get("success", False):
@@ -127,7 +149,7 @@ def api_init_db():
     return {"success": True}
 
 
-def api_init_routes(app: FastAPI, prefix: str = ""):
+def api_init_routes(app: FastAPI, prefix: str = "", enable_basic_auth: bool = False):
     """在给定的 FastAPI 实例上注册所有路由和静态挂载。
 
     设计契约：
@@ -139,13 +161,16 @@ def api_init_routes(app: FastAPI, prefix: str = ""):
     # serve static web UI
     app.mount(f"{prefix}/static", StaticFiles(directory=f"{os.path.dirname(__file__)}/static"), name="static")
 
+    # 构建依赖项列表
+    dependencies: List = [Depends(get_current_username)] if enable_basic_auth else []
+
     # register routes
     app.get(f"{prefix}/", include_in_schema=False)(index)
-    app.get(f"{prefix}/api/devices")(api_list_devices)
-    app.post(f"{prefix}/api/channels")(api_add_channel)
-    app.get(f"{prefix}/api/channels")(api_get_channels)
-    app.delete(f"{prefix}/api/channels")(api_delete_channel)
-    app.delete(f"{prefix}/api/devices")(api_delete_device)
-    app.put(f"{prefix}/api/channels/{{channel_id}}")(api_edit_channel)
-    app.patch(f"{prefix}/api/licenses/{{license_id}}/status")(api_edit_license_status)
+    app.get(f"{prefix}/api/devices", dependencies=dependencies)(api_list_devices)
+    app.post(f"{prefix}/api/channels", dependencies=dependencies)(api_add_channel)
+    app.get(f"{prefix}/api/channels", dependencies=dependencies)(api_get_channels)
+    app.delete(f"{prefix}/api/channels", dependencies=dependencies)(api_delete_channel)
+    app.delete(f"{prefix}/api/devices", dependencies=dependencies)(api_delete_device)
+    app.put(f"{prefix}/api/channels/{{channel_id}}", dependencies=dependencies)(api_edit_channel)
+    app.patch(f"{prefix}/api/licenses/{{license_id}}/status", dependencies=dependencies)(api_edit_license_status)
     app.post(f"{prefix}/api/init_db", include_in_schema=False)(api_init_db)
