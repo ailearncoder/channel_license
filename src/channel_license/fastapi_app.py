@@ -20,17 +20,6 @@ import hashlib
 # Basic Auth 配置
 security = HTTPBasic()
 
-# 从环境变量读取用户名和密码，如果环境变量未设置，则使用默认值
-USERNAME = os.environ.get("LICENSE_ADMIN_USERNAME", "admin")
-PASSWORD_HASH = os.environ.get("LICENSE_ADMIN_PASSWORD_HASH")
-
-# 如果没有设置密码哈希，则使用默认密码"password"的哈希值
-if PASSWORD_HASH is None:
-    # "password" 的 SHA256 哈希值
-    DEFAULT_PASSWORD_HASH = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
-    PASSWORD_HASH = DEFAULT_PASSWORD_HASH
-
-
 def hash_password(password: str) -> str:
     """计算密码的SHA256哈希值"""
     return hashlib.sha256(password.encode()).hexdigest()
@@ -39,8 +28,8 @@ def hash_password(password: str) -> str:
 def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
     """验证 Basic Auth 凭据"""
     # 确保 USERNAME 和 PASSWORD_HASH 不为 None，满足类型检查要求
-    username = USERNAME or "admin"
-    password_hash = PASSWORD_HASH or "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+    username = os.environ.get("LICENSE_ADMIN_USERNAME", "admin")
+    password_hash = os.environ.get("LICENSE_ADMIN_PASSWORD_HASH", "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8")
     
     correct_username = secrets.compare_digest(credentials.username, username)
     
