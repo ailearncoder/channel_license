@@ -41,6 +41,39 @@ uvicorn license.app:app --reload --host 127.0.0.1 --port 8000
 # 打开 http://127.0.0.1:8000/ 可访问静态前端（通过 /static 提供）
 ```
 
+默认情况下，API 路由没有启用 Basic Auth 认证。如果需要启用 Basic Auth 认证，可以在 `src/license/fastapi_app.py` 中修改 [api_init_routes](file:///home/pan/code/python/channel_license/src/channel_license/fastapi_app.py#L161-L184) 函数的调用，将 `enable_basic_auth` 参数设置为 `True`：
+
+```python
+# 在 app.py 中
+api_init_routes(app, enable_basic_auth=True)
+```
+
+默认的用户名和密码是：
+- 用户名：`admin`
+- 密码：`password`
+
+在生产环境中，建议从环境变量或配置文件中读取用户名和密码，而不是硬编码在代码中。
+
+## 环境变量配置
+
+为了提高安全性，本项目支持从环境变量读取认证信息：
+
+- `LICENSE_ADMIN_USERNAME`：管理员用户名，默认为 `admin`
+- `LICENSE_ADMIN_PASSWORD_HASH`：管理员密码的SHA256哈希值，默认为 `password` 的哈希值
+
+你可以使用项目提供的脚本生成密码哈希：
+
+```bash
+python -m channel_license.generate_password_hash your_password
+```
+
+然后将生成的哈希值设置为环境变量：
+
+```bash
+export LICENSE_ADMIN_USERNAME="your_username"
+export LICENSE_ADMIN_PASSWORD_HASH="generated_hash_value"
+```
+
 ## 运行测试
 
 项目使用 `pytest`，运行所有测试：
